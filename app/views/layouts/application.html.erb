@@ -21,9 +21,41 @@
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <script>
+      document.documentElement.dataset.theme =
+        localStorage.getItem("theme") ||
+        (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    </script>
   </head>
 
   <body>
+  <header class="topbar">
+    <div class="container" data-controller="theme">
+      <%= link_to root_path, class: "brand" do %>
+        <span class="brand__mark">✱</span>Waypoint
+      <% end %>
+
+      <nav class="nav">
+        <%= link_to "Обзор", root_path, aria: { current: current_page?(root_path) ? "page" : nil } %>
+      </nav>
+
+      <div class="row">
+        <button class="btn btn--sm" data-action="theme#toggle" type="button">Тема</button>
+        <% if authenticated? %>
+          <span class="avatar" title="<%= Current.user.email_address %>">
+            <%= initials(display_name(Current.user)) %>
+          </span>
+          <%= button_to "Выйти", session_path, method: :delete, class: "btn btn--sm" %>
+        <% end %>
+      </div>
+    </div>
+  </header>
+
+  <main class="container stack">
+    <% if notice %><div class="flash"><%= notice %></div><% end %>
+    <% if alert %><div class="flash flash--alert"><%= alert %></div><% end %>
     <%= yield %>
-  </body>
+  </main>
+</body>
 </html>

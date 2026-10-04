@@ -1,2 +1,49 @@
-<h1>Home#index</h1>
-<p>Find me in app/views/home/index.html.erb</p>
+<h1>Обзор</h1>
+
+<section class="grid-stats">
+  <% @stats.each do |s| %>
+    <div class="card stat" style="--c: var(--<%= s[:status] %>)">
+      <div class="stat__value"><%= s[:value] %></div>
+      <div class="stat__label"><%= s[:label] %></div>
+      <div class="muted"><%= s[:hint] %></div>
+    </div>
+  <% end %>
+</section>
+
+<div class="layout">
+  <section class="card" data-controller="filter">
+    <h2>Студенты</h2>
+    <div class="row" style="margin-bottom: var(--space-3)">
+      <input class="input" style="max-width: 240px" placeholder="Поиск по имени"
+             data-filter-target="query" data-action="input->filter#apply">
+      <button class="btn btn--sm is-active" type="button" data-status="all"
+              data-filter-target="button" data-action="filter#select">Все</button>
+      <% %i[burning stalled ontrack done].each do |st| %>
+        <button class="btn btn--sm" type="button" data-status="<%= st %>"
+                data-filter-target="button" data-action="filter#select">
+          <%= ApplicationHelper::STATUS_LABELS[st] %>
+        </button>
+      <% end %>
+    </div>
+
+    <% @students.each do |s| %>
+      <div class="list-item" data-filter-target="item"
+           data-status="<%= s[:status] %>" data-name="<%= s[:name] %>">
+        <div class="row" style="justify-content: space-between">
+          <strong><%= s[:name] %></strong>
+          <%= status_badge s[:status] %>
+        </div>
+        <div class="muted"><%= s[:work] %>: <%= s[:done] %> из <%= s[:total] %> вех</div>
+        <div class="progress" style="--c: var(--<%= s[:status] %>); --value: <%= (s[:done] * 100.0 / s[:total]).round %>%">
+          <div class="progress__bar"></div>
+        </div>
+        <div class="muted">Дальше: <%= s[:next] %></div>
+      </div>
+    <% end %>
+  </section>
+
+  <aside class="card">
+    <h2>Ближайшие дедлайны</h2>
+    <p class="muted">Скоро здесь будет список из базы.</p>
+  </aside>
+</div>

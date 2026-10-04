@@ -1,0 +1,54 @@
+.auth {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+  padding: var(--space-3);
+  background: var(--surface);
+}
+
+/* Левая панель (фон даёт класс hero-gradient) */
+.auth__hero {
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-width: 0;
+}
+.auth__brand { font-weight: 700; font-size: 1.1rem; }
+.auth__tagline { font-size: clamp(1.5rem, 2.6vw, 2.25rem); font-weight: 600; line-height: 1.2; margin: 0; }
+.auth__sub { margin: 0 0 var(--space-2); opacity: .75; }
+
+/* Правая панель */
+.auth__panel { display: grid; place-items: center; padding: var(--space-4); min-width: 0; }
+.auth__box { width: 100%; max-width: 380px; }
+.auth__mark { color: var(--accent); font-size: 2rem; line-height: 1; margin-bottom: var(--space-3); }
+.auth__title { font-size: 2rem; margin-bottom: var(--space-2); }
+.auth__lead { color: var(--muted); font-size: .9rem; margin: 0 0 var(--space-4); }
+.auth__switch { text-align: center; color: var(--muted); font-size: .9rem; margin-top: var(--space-4); }
+.auth__switch a { color: var(--accent); font-weight: 600; text-decoration: none; }
+
+/* Форма */
+.auth-form { display: grid; gap: var(--space-3); }
+.field { display: grid; gap: .35rem; }
+.field__label { font-size: .85rem; font-weight: 600; }
+.field__hint { font-size: .8rem; color: var(--muted); }
+.input-wrap { position: relative; }
+.input-wrap .input { padding-right: 5.5rem; }
+.input-wrap__btn {
+  position: absolute; right: .5rem; top: 50%; transform: translateY(-50%);
+  background: none; border: 0; color: var(--muted); font: inherit; font-size: .8rem; cursor: pointer;
+}
+.form-errors {
+  margin: 0 0 var(--space-3); padding: var(--space-3); border-radius: var(--radius); list-style: none;
+  font-size: .9rem; color: var(--stalled);
+  background: color-mix(in srgb, var(--stalled) 10%, transparent);
+}
+
+/* Мобильная версия: панель превращается в баннер */
+@media (max-width: 860px) {
+  .auth { grid-template-columns: 1fr; }
+  .auth__hero { min-height: 160px; }
+  .auth__sub { display: none; }
+}

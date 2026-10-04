@@ -1,25 +1,27 @@
-<h1>Вход в Waypoint</h1>
+<div class="auth__mark">✱</div>
+<h1 class="auth__title">Вход</h1>
+<p class="auth__lead">Откройте свой трек: вехи, дедлайны и прогресс в одном месте.</p>
 
-<form action="/session" method="post">
-  <div>
-    <label for="email_address">Email:</label><br>
-    <input type="email" name="email_address" id="email_address" required autofocus placeholder="Enter your email address" value="<%= params[:email_address] %>">
+<%= form_with url: session_path, class: "auth-form" do |form| %>
+  <div class="field">
+    <%= form.label :email_address, "Email", class: "field__label" %>
+    <%= form.email_field :email_address, required: true, autofocus: true,
+          autocomplete: "username", placeholder: "name@university.edu",
+          value: params[:email_address], class: "input" %>
   </div>
 
-  <div>
-    <label for="password">Пароль:</label><br>
-    <input type="password" name="password" id="password" required placeholder="Enter your password">
+  <div class="field" data-controller="password">
+    <%= form.label :password, "Пароль", class: "field__label" %>
+    <div class="input-wrap">
+      <%= form.password_field :password, required: true, autocomplete: "current-password",
+            maxlength: 72, class: "input", data: { password_target: "input" } %>
+      <button type="button" class="input-wrap__btn" data-action="password#toggle"
+              data-password-target="button">Показать</button>
+    </div>
   </div>
 
-  <div>
-    <input type="submit" value="Sign in">
-  </div>
-</form>
+  <%= form.submit "Войти", class: "btn btn--dark btn--lg btn--block" %>
+<% end %>
 
-<p>
-  <a href="/passwords/new">Forgot password?</a>
-</p>
-
-<p>
-  Нет аккаунта? <a href="/registration/new">Зарегистрироваться</a>
-</p>
+<p class="auth__switch"><%= link_to "Забыли пароль?", new_password_path %></p>
+<p class="auth__switch">Нет аккаунта? <%= link_to "Зарегистрироваться", new_registration_path %></p>

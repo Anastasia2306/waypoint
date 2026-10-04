@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <title>Waypoint</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <script>
+      document.documentElement.dataset.theme =
+        localStorage.getItem("theme") ||
+        (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    </script>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <main class="auth">
+      <aside class="auth__hero hero-gradient">
+        <div class="auth__brand">Waypoint</div>
+        <div>
+          <p class="auth__sub">Научный путь студента</p>
+          <p class="auth__tagline">Вехи, дедлайны и прогресс: сразу видно, что горит и что проседает.</p>
+        </div>
+      </aside>
+
+      <section class="auth__panel">
+        <div class="auth__box">
+          <% if alert %><p class="form-errors"><%= alert %></p><% end %>
+          <% if notice %><p class="flash"><%= notice %></p><% end %>
+          <%= yield %>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
