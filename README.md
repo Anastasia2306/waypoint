@@ -1,24 +1,53 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+# Waypoint
 
-Things you may want to cover:
+Трекер научного прогресса студентов и аспирантов.
 
-* Ruby version
+## Что это
 
-* System dependencies
+Waypoint помогает научным руководителям видеть прогресс студентов 
+по их научным трекам: что закрыто, что горит, что проседает. 
+Не канбан с задачами, а трекер состояния научной работы.
 
-* Configuration
+## Идея
 
-* Database creation
+Каждая научная работа — это путь: постановка задачи → этапы → 
+дедлайны → артефакты (отзывы, рецензии, выступления). Waypoint 
+показывает этот путь как маршрут с вехами и статусами.
 
-* Database initialization
+## Роли
 
-* How to run the test suite
+- **Студент** — видит свой трек, вехи, дедлайны, заметки о прогрессе
+- **Научник** — видит прогресс всех своих студентов, их вехи и артефакты
+- **Руководитель направления** — видит картину по всем научникам и студентам
 
-* Services (job queues, cache servers, search engines, etc.)
+## Статусы вех
 
-* Deployment instructions
+| Статус | Что значит |
+|---|---|
+| 🟢 done | веха закрыта |
+| 🔵 ontrack | идёт по плану |
+| 🟠 burning | горит — дедлайн скоро |
+| 🔴 stalled | проседает — нет движения |
+| ⚪ idle | ещё не начато |
 
-* ...
+## Стек
+
+- **Ruby** 3.4.10
+- **Rails** 8.1.3.1
+- **PostgreSQL** 18.6
+- **Hotwire** (Turbo + Stimulus)
+- Чистый **CSS** с design tokens
+- **RSpec** для тестов
+
+## Как запустить
+
+Требуется установленный Ruby 3.4.10, PostgreSQL 18+ и Bundler.
+
+```bash
+git clone https://github.com/Anastasia2306/waypoint.git
+cd waypoint
+bundle install
+bin/rails db:create db:migrate
+bin/rails server
