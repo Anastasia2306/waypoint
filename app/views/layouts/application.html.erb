@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
   <head>
     <title><%= content_for(:title) || "Waypoint" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -11,51 +11,64 @@
 
     <%= yield :head %>
 
-    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
-    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
-
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
-
-    <%# Includes all stylesheet files in app/assets/stylesheets %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
-    <%= javascript_importmap_tags %>
-
     <script>
       document.documentElement.dataset.theme =
         localStorage.getItem("theme") ||
         (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
     </script>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
   </head>
 
   <body>
-  <header class="topbar">
-    <div class="container" data-controller="theme">
-      <%= link_to root_path, class: "brand" do %>
-        <span class="brand__mark">✱</span>Waypoint
-      <% end %>
-
-      <nav class="nav">
-        <%= link_to "Обзор", root_path, aria: { current: current_page?(root_path) ? "page" : nil } %>
-      </nav>
-
-      <div class="row">
-        <button class="btn btn--sm" data-action="theme#toggle" type="button">Тема</button>
-        <% if authenticated? %>
-          <span class="avatar" title="<%= Current.user.email_address %>">
-            <%= initials(display_name(Current.user)) %>
-          </span>
-          <%= button_to "Выйти", session_path, method: :delete, class: "btn btn--sm" %>
+    <header class="site-header">
+      <div class="nav-pill" data-controller="theme">
+        <%= link_to root_path, class: "brand" do %>
+          <span class="brand__mark">✱</span>Waypoint
         <% end %>
-      </div>
-    </div>
-  </header>
 
-  <main class="container stack">
-    <% if notice %><div class="flash"><%= notice %></div><% end %>
-    <% if alert %><div class="flash flash--alert"><%= alert %></div><% end %>
-    <%= yield %>
-  </main>
-</body>
+        <nav class="nav">
+          <a href="#overview">Обзор</a>
+          <a href="#how">Как это работает</a>
+          <a href="#students">Студенты</a>
+          <a href="#deadlines">Дедлайны</a>
+        </nav>
+
+        <div class="row">
+          <button class="btn btn--sm" data-action="theme#toggle" type="button">◐ Тема</button>
+          <% if authenticated? %>
+            <span class="avatar" title="<%= Current.user.email_address %>">
+              <%= initials(display_name(Current.user)) %>
+            </span>
+            <%= button_to "Выйти", session_path, method: :delete, class: "btn btn--sm" %>
+          <% end %>
+        </div>
+      </div>
+    </header>
+
+    <main class="container page">
+      <% if notice %><div class="flash"><%= notice %></div><% end %>
+      <% if alert %><div class="flash flash--alert"><%= alert %></div><% end %>
+      <%= yield %>
+    </main>
+
+    <footer class="site-footer">
+      <div class="site-footer__box">
+        <div>
+          <strong>✱ Waypoint</strong>
+          <div class="site-footer__note">Трекер научного пути студента · учебный проект</div>
+        </div>
+        <nav class="site-footer__links">
+          <a href="#overview">Обзор</a>
+          <a href="#students">Студенты</a>
+          <a href="#deadlines">Дедлайны</a>
+        </nav>
+      </div>
+    </footer>
+  </body>
 </html>

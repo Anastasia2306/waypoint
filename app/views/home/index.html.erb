@@ -1,20 +1,89 @@
-<h1>Обзор</h1>
+<% next_deadline = @deadlines.first %>
+<% steps = [
+  ["01", "Ставим задачу", "Тема работы, научник и срок: всё в одной карточке."],
+  ["02", "Режем на вехи", "Этапы с дедлайнами, отзывы и выступления на конференциях."],
+  ["03", "Видим прогресс", "Статус считается сам: горит, проседает или идёт по плану."],
+  ["04", "Закрываем вехи", "Каждая закрытая веха двигает прогресс студента вперёд."]
+] %>
 
-<section class="grid-stats">
-  <% @stats.each do |s| %>
-    <div class="card stat" style="--c: var(--<%= s[:status] %>)">
-      <div class="stat__value"><%= s[:value] %></div>
-      <div class="stat__label"><%= s[:label] %></div>
-      <div class="muted"><%= s[:hint] %></div>
+<section class="hero2 hero-gradient">
+  <div>
+    <p class="eyebrow">Научный путь студента</p>
+    <h1 class="hero2__title">Здравствуйте,<br><em><%= display_name(Current.user) %></em></h1>
+    <p class="hero2__text">
+      Сегодня горит: <%= @burning %>, проседает: <%= @stalled %>.
+      Посмотрите, у кого процесс стоит на месте, пока не стало поздно.
+    </p>
+    <div class="row">
+      <a href="#students" class="btn btn--dark btn--lg">К студентам</a>
+      <a href="#deadlines" class="btn btn--ghost btn--lg">Дедлайны</a>
     </div>
-  <% end %>
+  </div>
+
+  <div class="hero2__side">
+    <div class="glass">
+      <div class="glass__label">Горит на этой неделе</div>
+      <div class="glass__num"><%= @burning %></div>
+    </div>
+    <div class="glass">
+      <div class="glass__label">Ближайший дедлайн</div>
+      <div class="glass__row">
+        <div>
+          <strong><%= next_deadline[:who] %></strong>
+          <div class="glass__label"><%= next_deadline[:what] %></div>
+        </div>
+        <span class="date-pill"><%= next_deadline[:date] %></span>
+      </div>
+    </div>
+  </div>
 </section>
 
-<div class="layout">
-  <section class="card" data-controller="filter">
-    <h2>Студенты</h2>
-    <div class="row" style="margin-bottom: var(--space-3)">
-      <input class="input" style="max-width: 240px" placeholder="Поиск по имени"
+<section id="overview" class="band">
+  <div class="section-head">
+    <div>
+      <h2 class="section-title">Состояние процесса</h2>
+      <p class="section-lead">Не «сделано ли задание», а двигается ли работа студента.</p>
+    </div>
+  </div>
+  <div class="band__grid">
+    <% @stats.each do |s| %>
+      <div class="big-stat" style="--c: var(--<%= s[:status] %>)">
+        <div class="big-stat__value" data-controller="counter" data-counter-to-value="<%= s[:value] %>"><%= s[:value] %></div>
+        <div>
+          <div class="big-stat__label"><%= s[:label] %></div>
+          <div class="big-stat__hint"><%= s[:hint] %></div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<section id="how">
+  <div class="section-head">
+    <div>
+      <h2 class="section-title">Как это работает</h2>
+      <p class="section-lead">Одинаковый путь для каждой научной работы.</p>
+    </div>
+  </div>
+  <div class="steps">
+    <% steps.each do |num, title, text| %>
+      <div class="step">
+        <div class="step__num"><%= num %></div>
+        <h3><%= title %></h3>
+        <p><%= text %></p>
+      </div>
+    <% end %>
+  </div>
+</section>
+
+<section id="students" data-controller="filter">
+  <div class="section-head">
+    <div>
+      <h2 class="section-title">Студенты</h2>
+      <p class="section-lead">Сначала то, что горит и проседает.</p>
+    </div>
+    <div class="chips">
+      <input class="input" placeholder="Поиск по имени"
              data-filter-target="query" data-action="input->filter#apply">
       <button class="btn btn--sm is-active" type="button" data-status="all"
               data-filter-target="button" data-action="filter#select">Все</button>
@@ -25,25 +94,50 @@
         </button>
       <% end %>
     </div>
+  </div>
 
+  <div class="student-grid">
     <% @students.each do |s| %>
-      <div class="list-item" data-filter-target="item"
-           data-status="<%= s[:status] %>" data-name="<%= s[:name] %>">
-        <div class="row" style="justify-content: space-between">
-          <strong><%= s[:name] %></strong>
+      <article class="student-card" style="--c: var(--<%= s[:status] %>)"
+               data-filter-target="item" data-status="<%= s[:status] %>" data-name="<%= s[:name] %>">
+        <div class="student-card__head">
+          <span class="avatar"><%= initials(s[:name]) %></span>
+          <div style="flex: 1">
+            <div class="student-card__name"><%= s[:name] %></div>
+            <div class="student-card__meta"><%= s[:work] %></div>
+          </div>
           <%= status_badge s[:status] %>
         </div>
-        <div class="muted"><%= s[:work] %>: <%= s[:done] %> из <%= s[:total] %> вех</div>
-        <div class="progress" style="--c: var(--<%= s[:status] %>); --value: <%= (s[:done] * 100.0 / s[:total]).round %>%">
-          <div class="progress__bar"></div>
+        <div>
+          <div class="student-card__meta" style="margin-bottom: .4rem"><%= s[:done] %> из <%= s[:total] %> вех</div>
+          <div class="progress" style="--value: <%= (s[:done] * 100.0 / s[:total]).round %>%">
+            <div class="progress__bar"></div>
+          </div>
         </div>
-        <div class="muted">Дальше: <%= s[:next] %></div>
-      </div>
+        <div class="student-card__next">Дальше: <%= s[:next] %></div>
+      </article>
     <% end %>
-  </section>
+  </div>
+</section>
 
-  <aside class="card">
-    <h2>Ближайшие дедлайны</h2>
-    <p class="muted">Скоро здесь будет список из базы.</p>
-  </aside>
-</div>
+<section id="deadlines" class="dark-panel">
+  <div class="dark-panel__grid">
+    <div>
+      <p class="eyebrow">Календарь</p>
+      <h2 class="section-title">Ближайшие дедлайны</h2>
+      <p class="section-lead">Вехи, отзывы и выступления, которые нельзя пропустить.</p>
+    </div>
+    <div>
+      <% @deadlines.each do |d| %>
+        <div class="deadline">
+          <span class="date-pill"><%= d[:date] %></span>
+          <div>
+            <strong><%= d[:who] %></strong>
+            <div class="deadline__what"><%= d[:what] %></div>
+          </div>
+          <%= status_badge d[:status] %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>

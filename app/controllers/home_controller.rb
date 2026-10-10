@@ -11,7 +11,14 @@ class HomeController < ApplicationController
       { name: "Анна К.", work: "ВКР бакалавра", done: 4, total: 6, status: :ontrack, next: "Глава 2, 12 окт" },
       { name: "Игорь М.", work: "Магистерская", done: 2, total: 8, status: :stalled, next: "Обзор литературы, просрочено" },
       { name: "Мария С.", work: "Курсовая, 3 курс", done: 5, total: 5, status: :done, next: "Отзыв готов" },
-      { name: "Денис Л.", work: "ВКР бакалавра", done: 3, total: 6, status: :burning, next: "Доклад на конференции, 9 окт" }
+      { name: "Денис Л.", work: "ВКР бакалавра", done: 3, total: 6, status: :burning, next: "Доклад на конференции, 14 окт" }
+    ]
+
+    @deadlines = [
+      { date: "14 окт", who: "Денис Л.", what: "Доклад на конференции", status: :burning },
+      { date: "12 окт", who: "Анна К.", what: "Глава 2 ВКР", status: :ontrack },
+      { date: "9 окт", who: "Игорь М.", what: "Обзор литературы", status: :stalled },
+      { date: "20 окт", who: "Мария С.", what: "Отзыв на курсовую", status: :done }
     ]
 
     @burning = @students.count { |s| s[:status] == :burning }
