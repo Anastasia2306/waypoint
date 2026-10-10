@@ -12,6 +12,6 @@ class CreateMilestones < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    add_index :milestones, [:research_project_id, :due_on]
+    add_index :milestones, [ :research_project_id, :due_on ]
   end
 end

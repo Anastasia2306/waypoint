@@ -67,4 +67,4 @@ end
 
 gem "json", "< 3"
 
-gem "rspec-rails", "~> 8.0", groups: [:development, :test]
+gem "rspec-rails", "~> 8.0", groups: [ :development, :test ]
