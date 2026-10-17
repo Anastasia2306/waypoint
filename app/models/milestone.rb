@@ -2,6 +2,7 @@ class Milestone < ApplicationRecord
   DUE_SOON_DAYS = 7
 
   belongs_to :research_project, inverse_of: :milestones
+  has_many :progress_notes, dependent: :destroy
 
   enum :kind, {
     stage: 0,       # этап работы

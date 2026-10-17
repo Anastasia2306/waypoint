@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_09_201859) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_17_175906) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -32,9 +32,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_201859) do
     t.bigint "author_id", null: false
     t.text "body", null: false
     t.datetime "created_at", null: false
+    t.bigint "milestone_id"
     t.bigint "research_project_id", null: false
     t.datetime "updated_at", null: false
     t.index ["author_id"], name: "index_progress_notes_on_author_id"
+    t.index ["milestone_id"], name: "index_progress_notes_on_milestone_id"
     t.index ["research_project_id"], name: "index_progress_notes_on_research_project_id"
   end
 
@@ -62,9 +64,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_201859) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.integer "course"
     t.datetime "created_at", null: false
+    t.integer "degree_level"
+    t.string "direction"
     t.string "email_address", null: false
+    t.string "first_name"
     t.string "full_name"
+    t.string "group_name"
+    t.string "last_name"
     t.bigint "manager_id"
     t.string "password_digest", null: false
     t.integer "role", default: 0, null: false
@@ -75,6 +83,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_09_201859) do
   end
 
   add_foreign_key "milestones", "research_projects"
+  add_foreign_key "progress_notes", "milestones"
   add_foreign_key "progress_notes", "research_projects"
   add_foreign_key "progress_notes", "users", column: "author_id"
   add_foreign_key "research_projects", "users", column: "student_id"

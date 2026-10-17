@@ -1,9 +1,9 @@
-<% next_deadline = @deadlines.first %>
+<% next_project, next_milestone = @deadlines.first %>
 <% steps = [
-  ["01", "Ставим задачу", "Тема работы, научник и срок: всё в одной карточке."],
-  ["02", "Режем на вехи", "Этапы с дедлайнами, отзывы и выступления на конференциях."],
-  ["03", "Видим прогресс", "Статус считается сам: горит, проседает или идёт по плану."],
-  ["04", "Закрываем вехи", "Каждая закрытая веха двигает прогресс студента вперёд."]
+  [ "01", "Ставим задачу", "Тема работы, научник и срок: всё в одной карточке." ],
+  [ "02", "Режем на вехи", "Студент добавляет этапы с дедлайнами, отзывы и выступления." ],
+  [ "03", "Видим прогресс", "Статус считается сам: горит, проседает или идёт по плану." ],
+  [ "04", "Закрываем вехи", "Каждая закрытая веха двигает прогресс студента вперёд." ]
 ] %>
 
 <section class="hero2 hero-gradient">
@@ -12,11 +12,17 @@
     <h1 class="hero2__title">Здравствуйте,<br><em><%= display_name(Current.user) %></em></h1>
     <p class="hero2__text">
       Сегодня горит: <%= @burning %>, проседает: <%= @stalled %>.
-      Посмотрите, у кого процесс стоит на месте, пока не стало поздно.
+      <% if Current.user.student? %>
+        Закрывайте вехи вовремя и оставляйте комментарии: научник видит ваш прогресс.
+      <% else %>
+        Посмотрите, у кого процесс стоит на месте, пока не стало поздно.
+      <% end %>
     </p>
     <div class="row">
-      <a href="#students" class="btn btn--dark btn--lg">К студентам</a>
-      <a href="#deadlines" class="btn btn--ghost btn--lg">Дедлайны</a>
+      <% if Current.user.supervisor? %>
+        <%= link_to "Новая работа", new_research_project_path, class: "btn btn--dark btn--lg" %>
+      <% end %>
+      <a href="#students" class="btn btn--ghost btn--lg">К работам</a>
     </div>
   </div>
 
@@ -27,13 +33,17 @@
     </div>
     <div class="glass">
       <div class="glass__label">Ближайший дедлайн</div>
-      <div class="glass__row">
-        <div>
-          <strong><%= next_deadline[:who] %></strong>
-          <div class="glass__label"><%= next_deadline[:what] %></div>
+      <% if next_milestone %>
+        <div class="glass__row">
+          <div>
+            <strong><%= next_project.student.display_name %></strong>
+            <div class="glass__label"><%= next_milestone.title %></div>
+          </div>
+          <span class="date-pill"><%= short_date(next_milestone.due_on) %></span>
         </div>
-        <span class="date-pill"><%= next_deadline[:date] %></span>
-      </div>
+      <% else %>
+        <div class="glass__label">Пока нет</div>
+      <% end %>
     </div>
   </div>
 </section>
@@ -58,6 +68,99 @@
   </div>
 </section>
 
+<section id="students" data-controller="filter">
+  <div class="section-head">
+    <div>
+      <h2 class="section-title"><%= Current.user.student? ? "Мои работы" : "Работы студентов" %></h2>
+      <p class="section-lead">Сначала то, что проседает и горит. Нажмите на карточку, чтобы открыть работу.</p>
+    </div>
+    <div class="chips">
+      <% unless Current.user.student? %>
+        <input class="input" placeholder="Поиск по имени"
+               data-filter-target="query" data-action="input->filter#apply">
+      <% end %>
+      <button class="btn btn--sm is-active" type="button" data-status="all"
+              data-filter-target="button" data-action="filter#select">Все</button>
+      <% %i[burning stalled ontrack done].each do |st| %>
+        <button class="btn btn--sm" type="button" data-status="<%= st %>"
+                data-filter-target="button" data-action="filter#select">
+          <%= ApplicationHelper::STATUS_LABELS[st] %>
+        </button>
+      <% end %>
+    </div>
+  </div>
+
+  <% if @projects.empty? %>
+    <div class="card">
+      <p class="muted" style="margin: 0">Здесь пока нет работ.</p>
+    </div>
+  <% end %>
+
+  <div class="student-grid">
+    <% @projects.each do |project| %>
+      <% status = project.status %>
+      <% done, total = milestone_counts(project) %>
+      <% upcoming = project.next_milestone %>
+      <article class="student-card" style="--c: var(--<%= status %>)"
+               data-filter-target="item" data-status="<%= status %>"
+               data-name="<%= project.student.display_name %> <%= project.title %>">
+        <div class="student-card__head">
+          <span class="avatar"><%= initials(project.student.display_name) %></span>
+          <div style="flex: 1">
+            <%= link_to project.student.display_name, research_project_path(project), class: "student-card__name" %>
+            <div class="student-card__meta"><%= project.title %></div>
+            <% if !Current.user.student? && project.student.short_study_info.present? %>
+              <div class="student-card__meta"><%= project.student.short_study_info %></div>
+            <% end %>
+          </div>
+          <%= status_badge status %>
+        </div>
+        <div>
+          <div class="student-card__meta" style="margin-bottom: .4rem"><%= done %> из <%= total %> вех</div>
+          <div class="progress" style="--value: <%= project.progress_percent %>%">
+            <div class="progress__bar"></div>
+          </div>
+        </div>
+        <div class="student-card__next">
+          <% if upcoming %>
+            Дальше: <%= upcoming.title %>, <%= short_date(upcoming.due_on) %>
+          <% elsif total.zero? %>
+            Вех пока нет
+          <% else %>
+            Все вехи закрыты
+          <% end %>
+        </div>
+        <span class="student-card__open">Открыть →</span>
+      </article>
+    <% end %>
+  </div>
+</section>
+
+<section id="deadlines" class="dark-panel">
+  <div class="dark-panel__grid">
+    <div>
+      <p class="eyebrow">Календарь</p>
+      <h2 class="section-title">Ближайшие дедлайны</h2>
+      <p class="section-lead">Вехи, отзывы и выступления, которые нельзя пропустить.</p>
+    </div>
+    <div>
+      <% if @deadlines.empty? %>
+        <p class="section-lead">Ближайших дедлайнов нет.</p>
+      <% end %>
+      <% @deadlines.each do |project, milestone| %>
+        <%= link_to research_project_path(project), class: "deadline" do %>
+          <span class="date-pill"><%= short_date(milestone.due_on) %></span>
+          <div>
+            <strong><%= project.student.display_name %></strong>
+            <div class="deadline__what"><%= milestone.title %></div>
+          </div>
+          <%= status_badge milestone_status(milestone) %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</section>
+
 <section id="how">
   <div class="section-head">
     <div>
@@ -73,71 +176,5 @@
         <p><%= text %></p>
       </div>
     <% end %>
-  </div>
-</section>
-
-<section id="students" data-controller="filter">
-  <div class="section-head">
-    <div>
-      <h2 class="section-title">Студенты</h2>
-      <p class="section-lead">Сначала то, что горит и проседает.</p>
-    </div>
-    <div class="chips">
-      <input class="input" placeholder="Поиск по имени"
-             data-filter-target="query" data-action="input->filter#apply">
-      <button class="btn btn--sm is-active" type="button" data-status="all"
-              data-filter-target="button" data-action="filter#select">Все</button>
-      <% %i[burning stalled ontrack done].each do |st| %>
-        <button class="btn btn--sm" type="button" data-status="<%= st %>"
-                data-filter-target="button" data-action="filter#select">
-          <%= ApplicationHelper::STATUS_LABELS[st] %>
-        </button>
-      <% end %>
-    </div>
-  </div>
-
-  <div class="student-grid">
-    <% @students.each do |s| %>
-      <article class="student-card" style="--c: var(--<%= s[:status] %>)"
-               data-filter-target="item" data-status="<%= s[:status] %>" data-name="<%= s[:name] %>">
-        <div class="student-card__head">
-          <span class="avatar"><%= initials(s[:name]) %></span>
-          <div style="flex: 1">
-            <div class="student-card__name"><%= s[:name] %></div>
-            <div class="student-card__meta"><%= s[:work] %></div>
-          </div>
-          <%= status_badge s[:status] %>
-        </div>
-        <div>
-          <div class="student-card__meta" style="margin-bottom: .4rem"><%= s[:done] %> из <%= s[:total] %> вех</div>
-          <div class="progress" style="--value: <%= (s[:done] * 100.0 / s[:total]).round %>%">
-            <div class="progress__bar"></div>
-          </div>
-        </div>
-        <div class="student-card__next">Дальше: <%= s[:next] %></div>
-      </article>
-    <% end %>
-  </div>
-</section>
-
-<section id="deadlines" class="dark-panel">
-  <div class="dark-panel__grid">
-    <div>
-      <p class="eyebrow">Календарь</p>
-      <h2 class="section-title">Ближайшие дедлайны</h2>
-      <p class="section-lead">Вехи, отзывы и выступления, которые нельзя пропустить.</p>
-    </div>
-    <div>
-      <% @deadlines.each do |d| %>
-        <div class="deadline">
-          <span class="date-pill"><%= d[:date] %></span>
-          <div>
-            <strong><%= d[:who] %></strong>
-            <div class="deadline__what"><%= d[:what] %></div>
-          </div>
-          <%= status_badge d[:status] %>
-        </div>
-      <% end %>
-    </div>
   </div>
 </section>

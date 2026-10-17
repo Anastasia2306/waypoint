@@ -1,0 +1,47 @@
+<%= link_to "← К обзору", root_path, class: "back-link" %>
+
+<section class="card" style="max-width: 640px">
+  <h1 class="section-title" style="margin-bottom: var(--space-4)">Новая научная работа</h1>
+
+  <%= form_with model: @project, class: "auth-form" do |form| %>
+    <% if @project.errors.any? %>
+      <ul class="form-errors">
+        <% @project.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+      </ul>
+    <% end %>
+
+    <div class="field">
+      <%= form.label :title, "Тема работы", class: "field__label" %>
+      <%= form.text_field :title, required: true, class: "input" %>
+    </div>
+
+    <div class="field">
+      <%= form.label :kind, "Тип работы", class: "field__label" %>
+      <%= form.select :kind, ResearchProject.kinds.keys.map { |key| [ project_kind_label(key), key ] }, {}, class: "input" %>
+    </div>
+
+    <div class="field">
+      <%= form.label :student_id, "Студент", class: "field__label" %>
+      <%= form.collection_select :student_id, @students, :id, :display_name,
+            { prompt: "Выберите студента" }, class: "input", required: true %>
+    </div>
+
+    <div class="form-row">
+      <div class="field">
+        <%= form.label :starts_on, "Начало", class: "field__label" %>
+        <%= form.date_field :starts_on, class: "input" %>
+      </div>
+      <div class="field">
+        <%= form.label :due_on, "Срок", class: "field__label" %>
+        <%= form.date_field :due_on, class: "input" %>
+      </div>
+    </div>
+
+    <div class="field">
+      <%= form.label :description, "Описание (необязательно)", class: "field__label" %>
+      <%= form.text_area :description, rows: 3, class: "input" %>
+    </div>
+
+    <%= form.submit "Создать работу", class: "btn btn--dark btn--lg btn--block" %>
+  <% end %>
+</section>

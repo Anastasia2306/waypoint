@@ -1,0 +1,8 @@
+<div class="note">
+  <div class="note__meta">
+    <%= note.author.display_name %> ·
+    <%= note.author_id == project.supervisor_id ? "научник" : "студент" %> ·
+    <%= short_date(note.created_at.to_date) %>
+  </div>
+  <%= simple_format(note.body) %>
+</div>

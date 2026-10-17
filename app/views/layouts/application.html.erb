@@ -26,25 +26,30 @@
   </head>
 
   <body>
+    <% students_label = authenticated? && Current.user.student? ? "Мои работы" : "Студенты" %>
+
     <header class="site-header">
-      <div class="nav-pill" data-controller="theme">
+      <div class="nav-pill" data-controller="theme nav">
         <%= link_to root_path, class: "brand" do %>
           <span class="brand__mark">✱</span>Waypoint
         <% end %>
 
         <nav class="nav">
-          <a href="#overview">Обзор</a>
-          <a href="#how">Как это работает</a>
-          <a href="#students">Студенты</a>
-          <a href="#deadlines">Дедлайны</a>
+          <%= nav_link "Обзор", root_path(anchor: "overview"), :overview, section: "overview" %>
+          <%= nav_link students_label, root_path(anchor: "students"), :students, section: "students" %>
+          <%= nav_link "Дедлайны", root_path(anchor: "deadlines"), :deadlines, section: "deadlines" %>
+          <% if authenticated? && Current.user.supervisor? %>
+            <%= nav_link "Новая работа", new_research_project_path, :new_project %>
+          <% end %>
+          <%= nav_link "Как это работает", root_path(anchor: "how"), :how, section: "how" %>
         </nav>
 
         <div class="row">
           <button class="btn btn--sm" data-action="theme#toggle" type="button">◐ Тема</button>
           <% if authenticated? %>
-            <span class="avatar" title="<%= Current.user.email_address %>">
-              <%= initials(display_name(Current.user)) %>
-            </span>
+            <%= link_to initials(display_name(Current.user)), edit_profile_path,
+                  class: class_names("avatar", "avatar--active": controller_name == "profiles"),
+                  title: "Мой профиль: #{Current.user.email_address}" %>
             <%= button_to "Выйти", session_path, method: :delete, class: "btn btn--sm" %>
           <% end %>
         </div>
@@ -64,9 +69,10 @@
           <div class="site-footer__note">Трекер научного пути студента · учебный проект</div>
         </div>
         <nav class="site-footer__links">
-          <a href="#overview">Обзор</a>
-          <a href="#students">Студенты</a>
-          <a href="#deadlines">Дедлайны</a>
+          <%= link_to "Обзор", root_path(anchor: "overview") %>
+          <%= link_to students_label, root_path(anchor: "students") %>
+          <%= link_to "Дедлайны", root_path(anchor: "deadlines") %>
+          <%= link_to "Как это работает", root_path(anchor: "how") %>
         </nav>
       </div>
     </footer>

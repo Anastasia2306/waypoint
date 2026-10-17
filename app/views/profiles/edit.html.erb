@@ -1,0 +1,58 @@
+<%= link_to "← К обзору", root_path, class: "back-link" %>
+
+<section class="card" style="max-width: 640px">
+  <h1 class="section-title" style="margin-bottom: var(--space-2)">Мой профиль</h1>
+  <p class="muted" style="margin: 0 0 var(--space-4)">
+    <%= @user.email_address %> · <%= role_label(@user) %>
+  </p>
+
+  <%= form_with model: @user, url: profile_path, method: :patch, class: "auth-form" do |form| %>
+    <% if @user.errors.any? %>
+      <ul class="form-errors">
+        <% @user.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+      </ul>
+    <% end %>
+
+    <div class="form-row">
+      <div class="field">
+        <%= form.label :first_name, "Имя", class: "field__label" %>
+        <%= form.text_field :first_name, class: "input", autocomplete: "given-name" %>
+      </div>
+      <div class="field">
+        <%= form.label :last_name, "Фамилия", class: "field__label" %>
+        <%= form.text_field :last_name, class: "input", autocomplete: "family-name" %>
+      </div>
+    </div>
+
+    <% if @user.student? %>
+      <div class="field">
+        <%= form.label :direction, "Направление", class: "field__label" %>
+        <%= form.text_field :direction, class: "input", placeholder: "Например, Прикладная информатика" %>
+      </div>
+
+      <div class="auth-form" data-controller="course">
+        <div class="field">
+          <%= form.label :degree_level, "Уровень обучения", class: "field__label" %>
+          <%= form.select :degree_level,
+                User::DEGREE_LEVEL_LABELS.map { |key, label| [ label, key ] },
+                { include_blank: "Не выбран" },
+                class: "input", data: { course_target: "level", action: "change->course#update" } %>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <%= form.label :course, "Курс", class: "field__label" %>
+            <%= form.select :course, (1..4).to_a, { include_blank: "Не выбран" },
+                  class: "input", data: { course_target: "course" } %>
+          </div>
+          <div class="field">
+            <%= form.label :group_name, "Группа", class: "field__label" %>
+            <%= form.text_field :group_name, class: "input", placeholder: "Например, ИУ-31" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <%= form.submit "Сохранить", class: "btn btn--dark btn--lg btn--block" %>
+  <% end %>
+</section>

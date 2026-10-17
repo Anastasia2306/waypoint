@@ -1,0 +1,110 @@
+<% done, total = milestone_counts(@project) %>
+<% status = @project.status %>
+<% notes_by_milestone = @project.progress_notes.group_by(&:milestone_id) %>
+<% project_notes = (notes_by_milestone[nil] || []).sort_by(&:created_at).reverse %>
+
+<%= link_to "← К обзору", root_path, class: "back-link" %>
+
+<section class="hero2 hero2--compact hero-gradient">
+  <div>
+    <p class="eyebrow"><%= project_kind_label(@project.kind) %></p>
+    <h1 class="hero2__title"><%= @project.title %></h1>
+    <p class="hero2__text">
+      Студент: <strong><%= @project.student.display_name %></strong>
+      <% if @project.student.study_info.present? %>(<%= @project.student.study_info %>)<% end %> ·
+      Научник: <strong><%= @project.supervisor.display_name %></strong>
+    </p>
+    <div class="row">
+      <%= status_badge status %>
+      <span><%= done %> из <%= total %> вех</span>
+    </div>
+    <div class="progress" style="--c: var(--<%= status %>); --value: <%= @project.progress_percent %>%; max-width: 420px">
+      <div class="progress__bar"></div>
+    </div>
+  </div>
+</section>
+
+<div class="layout">
+  <section class="card">
+    <h2 class="card__title">Вехи</h2>
+
+    <% if @project.milestones.empty? %>
+      <p class="muted">
+        <%= project_student?(@project) ? "Вех пока нет. Добавьте первую ниже." : "Студент ещё не добавил вехи." %>
+      </p>
+    <% end %>
+
+    <% @project.milestones.each do |milestone| %>
+      <% comments = (notes_by_milestone[milestone.id] || []).sort_by(&:created_at) %>
+      <div class="milestone-block" id="milestone-<%= milestone.id %>">
+        <div class="milestone <%= "milestone--done" if milestone.completed? %>">
+          <div>
+            <div class="milestone__title"><%= milestone.title %></div>
+            <div class="muted">
+              <%= milestone_kind_label(milestone.kind) %> · срок <%= short_date(milestone.due_on) %><%= ", закрыта #{short_date(milestone.completed_on)}" if milestone.completed? %>
+            </div>
+          </div>
+          <%= status_badge milestone_status(milestone) %>
+          <% if !milestone.completed? && participant?(@project) %>
+            <%= button_to "Закрыть", complete_research_project_milestone_path(@project, milestone),
+                  method: :patch, class: "btn btn--sm" %>
+          <% end %>
+        </div>
+
+        <details class="milestone-comments" <%= "open" if comments.any? %>>
+          <summary>Комментарии (<%= comments.size %>)</summary>
+          <% comments.each do |note| %>
+            <%= render "note", note: note, project: @project %>
+          <% end %>
+
+          <% if participant?(@project) %>
+            <%= form_with model: [ @project, ProgressNote.new ], class: "auth-form" do |form| %>
+              <%= form.hidden_field :milestone_id, value: milestone.id, id: "note_milestone_#{milestone.id}" %>
+              <%= form.text_area :body, required: true, rows: 2, class: "input",
+                    id: "note_body_#{milestone.id}", placeholder: "Комментарий к вехе" %>
+              <%= form.submit "Отправить", class: "btn btn--sm btn--dark" %>
+            <% end %>
+          <% end %>
+        </details>
+      </div>
+    <% end %>
+
+    <% if project_student?(@project) %>
+      <h3 style="margin-top: var(--space-4)">Добавить веху</h3>
+      <%= form_with model: [ @project, Milestone.new ], class: "form-inline" do |form| %>
+        <div class="field">
+          <%= form.label :title, "Название", class: "field__label" %>
+          <%= form.text_field :title, required: true, class: "input" %>
+        </div>
+        <div class="field">
+          <%= form.label :kind, "Тип", class: "field__label" %>
+          <%= form.select :kind, Milestone.kinds.keys.map { |key| [ milestone_kind_label(key), key ] }, {}, class: "input" %>
+        </div>
+        <div class="field">
+          <%= form.label :due_on, "Срок", class: "field__label" %>
+          <%= form.date_field :due_on, required: true, class: "input" %>
+        </div>
+        <%= form.submit "Добавить", class: "btn btn--dark" %>
+      <% end %>
+    <% end %>
+  </section>
+
+  <aside class="card" id="notes">
+    <h2 class="card__title">Комментарии к работе</h2>
+
+    <% if participant?(@project) %>
+      <%= form_with model: [ @project, ProgressNote.new ], class: "auth-form" do |form| %>
+        <%= form.text_area :body, required: true, rows: 3, class: "input",
+              placeholder: "Что сделано, что мешает, что дальше" %>
+        <%= form.submit "Добавить комментарий", class: "btn btn--dark btn--block" %>
+      <% end %>
+    <% end %>
+
+    <div style="margin-top: var(--space-3)">
+      <% if project_notes.empty? %><p class="muted">Комментариев пока нет.</p><% end %>
+      <% project_notes.each do |note| %>
+        <%= render "note", note: note, project: @project %>
+      <% end %>
+    </div>
+  </aside>
+</div>
