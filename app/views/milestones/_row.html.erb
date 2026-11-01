@@ -1,0 +1,17 @@
+<div id="<%= dom_id(milestone, :row) %>" class="milestone <%= "milestone--done" if milestone.completed? %>">
+  <div>
+    <div class="milestone__title"><%= milestone.title %></div>
+    <div class="muted">
+      <%= milestone_kind_label(milestone.kind) %> · срок <%= short_date(milestone.due_on) %><%= ", закрыта #{short_date(milestone.completed_on)}" if milestone.completed? %>
+    </div>
+  </div>
+  <%= status_badge milestone_status(milestone) %>
+  <% unless milestone.completed? %>
+    <%# Кнопка есть в разметке для всех, но показывается только участникам работы (см. CSS) %>
+    <div class="participant-only">
+      <%= button_to "Закрыть", complete_research_project_milestone_path(project, milestone),
+            method: :patch, class: "btn btn--sm", authenticity_token: false %>
+    </div>
+  <% end %>
+</div>
+ 

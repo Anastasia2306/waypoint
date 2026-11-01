@@ -1,0 +1,4 @@
+<%= turbo_stream.replace "new_milestone_form",
+      partial: "milestones/form",
+      locals: { project: @project, milestone: @milestone.persisted? ? Milestone.new : @milestone } %>
+      

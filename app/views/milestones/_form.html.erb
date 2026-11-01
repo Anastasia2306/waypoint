@@ -1,0 +1,25 @@
+<div id="new_milestone_form">
+  <h3 style="margin-top: var(--space-4)">Добавить веху</h3>
+
+  <% if milestone.errors.any? %>
+    <ul class="form-errors">
+      <% milestone.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+    </ul>
+  <% end %>
+
+  <%= form_with model: [ project, milestone ], class: "form-inline" do |form| %>
+    <div class="field">
+      <%= form.label :title, "Название", class: "field__label" %>
+      <%= form.text_field :title, required: true, class: "input" %>
+    </div>
+    <div class="field">
+      <%= form.label :kind, "Тип", class: "field__label" %>
+      <%= form.select :kind, Milestone.kinds.keys.map { |key| [ milestone_kind_label(key), key ] }, {}, class: "input" %>
+    </div>
+    <div class="field">
+      <%= form.label :due_on, "Срок", class: "field__label" %>
+      <%= form.date_field :due_on, required: true, class: "input" %>
+    </div>
+    <%= form.submit "Добавить", class: "btn btn--dark" %>
+  <% end %>
+</div>

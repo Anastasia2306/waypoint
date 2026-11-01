@@ -1,0 +1,11 @@
+<% done, total = milestone_counts(project) %>
+<% status = project.status %>
+<div id="<%= dom_id(project, :summary) %>">
+  <div class="row">
+    <%= status_badge status %>
+    <span><%= done %> из <%= total %> вех</span>
+  </div>
+  <div class="progress" style="--c: var(--<%= status %>); --value: <%= project.progress_percent %>%; max-width: 420px">
+    <div class="progress__bar"></div>
+  </div>
+</div>

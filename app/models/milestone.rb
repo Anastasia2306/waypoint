@@ -21,6 +21,9 @@ class Milestone < ApplicationRecord
   scope :overdue, -> { pending.where(due_on: ...Date.current) }
   scope :due_soon, ->(days = DUE_SOON_DAYS) { pending.where(due_on: Date.current..(Date.current + days)) }
 
+  after_create_commit :broadcast_created
+  after_update_commit :broadcast_completion, if: :saved_change_to_completed_on?
+
   def completed?
     completed_on.present?
   end
@@ -48,6 +51,14 @@ class Milestone < ApplicationRecord
   end
 
   private
+
+  def broadcast_created
+    ProjectBroadcaster.new(research_project).milestone_created(self)
+  end
+
+  def broadcast_completion
+    ProjectBroadcaster.new(research_project).milestone_completed(self)
+  end
 
   def completed_on_not_in_future
     return if completed_on.nil? || completed_on <= Date.current

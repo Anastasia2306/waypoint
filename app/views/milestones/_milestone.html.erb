@@ -1,0 +1,14 @@
+<% count = milestone_comments_count(project, milestone) %>
+<div class="milestone-block" id="milestone-<%= milestone.id %>">
+  <%= render "milestones/row", milestone: milestone, project: project %>
+
+  <details class="milestone-comments" <%= "open" if count.positive? %>>
+    <%= render "milestones/comments_summary", milestone: milestone, count: count %>
+
+    <%# Turbo Frame: комментарии загружаются отдельным запросом, когда блок раскрыт %>
+    <%= turbo_frame_tag dom_id(milestone, :comments),
+          src: comments_research_project_milestone_path(project, milestone), loading: :lazy do %>
+      <p class="muted">Загрузка комментариев…</p>
+    <% end %>
+  </details>
+</div>

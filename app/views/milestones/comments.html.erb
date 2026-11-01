@@ -1,0 +1,11 @@
+<%= turbo_frame_tag dom_id(@milestone, :comments) do %>
+  <div id="<%= dom_id(@milestone, :comments_list) %>" class="comments-list">
+    <% @notes.each do |note| %>
+      <%= render "research_projects/note", note: note, project: @project %>
+    <% end %>
+  </div>
+
+  <% if participant?(@project) %>
+    <%= render "progress_notes/form", project: @project, milestone: @milestone, note: ProgressNote.new %>
+  <% end %>
+<% end %>

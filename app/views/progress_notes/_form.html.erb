@@ -1,0 +1,19 @@
+<% form_id = milestone ? dom_id(milestone, :comment_form) : "project_note_form" %>
+<div id="<%= form_id %>">
+  <% if note.errors.any? %>
+    <ul class="form-errors">
+      <% note.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+    </ul>
+  <% end %>
+
+  <%= form_with model: [ project, note ], class: "auth-form" do |form| %>
+    <% if milestone %>
+      <%= form.hidden_field :milestone_id, value: milestone.id, id: "note_milestone_#{milestone.id}" %>
+    <% end %>
+    <%= form.text_area :body, required: true, rows: (milestone ? 2 : 3), class: "input",
+          id: "note_body_#{milestone&.id || "project"}",
+          placeholder: (milestone ? "Комментарий к вехе" : "Что сделано, что мешает, что дальше") %>
+    <%= form.submit (milestone ? "Отправить" : "Добавить комментарий"),
+          class: (milestone ? "btn btn--sm btn--dark" : "btn btn--dark btn--block") %>
+  <% end %>
+</div>

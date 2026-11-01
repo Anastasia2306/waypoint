@@ -1,0 +1,4 @@
+<% form_id = @milestone ? dom_id(@milestone, :comment_form) : "project_note_form" %>
+<%= turbo_stream.replace form_id,
+      partial: "progress_notes/form",
+      locals: { project: @project, milestone: @milestone, note: @note.persisted? ? ProgressNote.new : @note } %>

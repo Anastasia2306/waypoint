@@ -81,4 +81,9 @@ module ApplicationHelper
 
     link_to label, path, class: class_names("is-active": nav_active?(key)).presence, data: data
   end
+
+  # Сколько комментариев у вехи (комментарии уже загружены вместе с работой)
+  def milestone_comments_count(project, milestone)
+    project.progress_notes.to_a.count { |note| note.milestone_id == milestone.id }
+  end
 end

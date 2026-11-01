@@ -129,7 +129,13 @@ RSpec.describe "Happy path: от регистрации до закрытия в
 
         get research_project_path(project)
         expect(response).to have_http_status(:ok)
-        expect(response.body).to include("Обзор литературы", "Нашла пять подходящих статей", "Начала писать главу 1")
+        expect(response.body).to include("Обзор литературы", "Начала писать главу 1", "Комментарии (1)")
+
+        # Комментарии к вехе подгружаются отдельным Turbo Frame
+        get comments_research_project_milestone_path(project, milestone)
+        expect(response).to have_http_status(:ok)
+        expect(response.body).to include("Нашла пять подходящих статей")
+
 
         feedback = { body: "Добавьте обзор зарубежных источников", milestone_id: milestone.id }
         expect { post research_project_progress_notes_path(project), params: { progress_note: feedback } }

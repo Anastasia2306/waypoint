@@ -1,4 +1,4 @@
-<div class="note">
+<div class="note" id="<%= dom_id(note) %>">
   <div class="note__meta">
     <%= note.author.display_name %> ·
     <%= note.author_id == project.supervisor_id ? "научник" : "студент" %> ·

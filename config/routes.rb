@@ -15,7 +15,10 @@ Rails.application.routes.draw do
 
   resources :research_projects, only: [ :show, :new, :create ] do
     resources :milestones, only: [ :create ] do
-      patch :complete, on: :member
+      member do
+        patch :complete
+        get :comments
+      end
     end
     resources :progress_notes, only: [ :create ]
   end

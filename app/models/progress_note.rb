@@ -7,7 +7,13 @@ class ProgressNote < ApplicationRecord
   validate :author_takes_part_in_project
   validate :milestone_belongs_to_project
 
+  after_create_commit :broadcast_created
+
   private
+
+  def broadcast_created
+    ProjectBroadcaster.new(research_project).note_created(self)
+  end
 
   def author_takes_part_in_project
     return if research_project.nil? || author.nil?
