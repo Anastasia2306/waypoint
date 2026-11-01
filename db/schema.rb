@@ -10,46 +10,47 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_17_175906) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_01_140927) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "milestones", force: :cascade do |t|
-    t.date "completed_on"
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.date "due_on", null: false
-    t.integer "kind", default: 0, null: false
-    t.integer "position", default: 0, null: false
     t.bigint "research_project_id", null: false
     t.string "title", null: false
+    t.text "description"
+    t.integer "kind", default: 0, null: false
+    t.integer "position", default: 0, null: false
+    t.date "due_on", null: false
+    t.date "completed_on"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["research_project_id", "due_on"], name: "index_milestones_on_research_project_id_and_due_on"
     t.index ["research_project_id"], name: "index_milestones_on_research_project_id"
   end
 
   create_table "progress_notes", force: :cascade do |t|
+    t.bigint "research_project_id", null: false
     t.bigint "author_id", null: false
     t.text "body", null: false
     t.datetime "created_at", null: false
-    t.bigint "milestone_id"
-    t.bigint "research_project_id", null: false
     t.datetime "updated_at", null: false
+    t.bigint "milestone_id"
     t.index ["author_id"], name: "index_progress_notes_on_author_id"
     t.index ["milestone_id"], name: "index_progress_notes_on_milestone_id"
     t.index ["research_project_id"], name: "index_progress_notes_on_research_project_id"
   end
 
   create_table "research_projects", force: :cascade do |t|
-    t.datetime "created_at", null: false
+    t.string "title", null: false
     t.text "description"
-    t.date "due_on"
     t.integer "kind", default: 0, null: false
-    t.date "starts_on"
     t.bigint "student_id", null: false
     t.bigint "supervisor_id", null: false
-    t.string "title", null: false
+    t.date "starts_on"
+    t.date "due_on"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "repository_url"
     t.index ["student_id"], name: "index_research_projects_on_student_id"
     t.index ["supervisor_id"], name: "index_research_projects_on_supervisor_id"
   end
@@ -64,19 +65,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_17_175906) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.integer "course"
     t.datetime "created_at", null: false
-    t.integer "degree_level"
-    t.string "direction"
     t.string "email_address", null: false
-    t.string "first_name"
-    t.string "full_name"
-    t.string "group_name"
-    t.string "last_name"
-    t.bigint "manager_id"
     t.string "password_digest", null: false
-    t.integer "role", default: 0, null: false
     t.datetime "updated_at", null: false
+    t.string "full_name"
+    t.integer "role", default: 0, null: false
+    t.bigint "manager_id"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "direction"
+    t.integer "course"
+    t.string "group_name"
+    t.integer "degree_level"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
     t.index ["manager_id"], name: "index_users_on_manager_id"
     t.index ["role"], name: "index_users_on_role"

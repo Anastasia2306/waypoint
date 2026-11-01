@@ -1,0 +1,57 @@
+require "rails_helper"
+
+RSpec.describe ResearchProject do
+  describe "порядок вех" do
+    context "когда добавлена новая веха" do
+      it "она стоит первой в списке" do
+        project = create_project
+        older = create_milestone(project: project, title: "Старая")
+        newer = create_milestone(project: project, title: "Новая")
+
+        expect(project.reload.milestones.to_a).to eq([ newer, older ])
+      end
+    end
+
+    context "когда нужна ближайшая веха" do
+      it "ближайшая по сроку находится независимо от порядка показа" do
+        project = create_project
+        create_milestone(project: project, title: "Далеко", due_on: Date.current + 30)
+        near = create_milestone(project: project, title: "Близко", due_on: Date.current + 5)
+        create_milestone(project: project, title: "Самая новая", due_on: Date.current + 60)
+
+        expect(project.reload.next_milestone).to eq(near)
+      end
+    end
+  end
+
+  describe "ссылка на репозиторий" do
+    let(:project) { create_project }
+
+    context "когда это обычная веб-ссылка" do
+      it "проходит валидацию" do
+        project.repository_url = "https://gitlab.com/user/repo"
+
+        expect(project).to be_valid
+      end
+    end
+
+    context "когда это не веб-ссылка" do
+      it "не принимает javascript: и другие схемы" do
+        [ "javascript:alert(1)", "ftp://example.com/repo", "просто текст" ].each do |value|
+          project.repository_url = value
+
+          expect(project).not_to be_valid
+        end
+      end
+    end
+
+    context "когда поле пустое" do
+      it "считается отсутствием ссылки" do
+        project.repository_url = "   "
+
+        expect(project.repository_url).to be_nil
+        expect(project).to be_valid
+      end
+    end
+  end
+end

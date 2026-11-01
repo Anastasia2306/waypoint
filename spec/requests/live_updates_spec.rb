@@ -99,15 +99,17 @@ RSpec.describe "Живые обновления страницы работы", 
     end
 
     context "когда студент добавляет веху" do
-      it "создаёт её и сбрасывает форму" do
-        params = { milestone: { title: "Эксперименты", kind: "stage", due_on: Date.current + 30 } }
-
-        expect { post research_project_milestones_path(project), params: params, headers: turbo_headers }
-          .to change(Milestone, :count).by(1)
-
-        expect(response.media_type).to eq("text/vnd.turbo-stream.html")
-        expect(response.body).to include('target="new_milestone_form"')
+      it "добавляет её в начало списка и обновляет прогресс работы" do
+        calls = capture_broadcasts(:broadcast_prepend_to, :broadcast_replace_to, :broadcast_remove_to) do
+          create_milestone(project: project, title: "Новая веха")
         end
+
+        expect(calls).to contain_exactly(
+          [ :broadcast_remove_to, "milestones_empty" ],
+          [ :broadcast_prepend_to, "milestones" ],
+          [ :broadcast_replace_to, dom_id(project, :summary) ]
+        )
+      end
     end
   end
 
@@ -137,13 +139,13 @@ RSpec.describe "Живые обновления страницы работы", 
 
     context "когда студент добавляет веху" do
       it "добавляет её в список и обновляет прогресс работы" do
-        calls = capture_broadcasts(:broadcast_append_to, :broadcast_replace_to, :broadcast_remove_to) do
+        calls = capture_broadcasts(:broadcast_prepend_to, :broadcast_replace_to, :broadcast_remove_to) do
           create_milestone(project: project, title: "Новая веха")
         end
 
         expect(calls).to contain_exactly(
           [ :broadcast_remove_to, "milestones_empty" ],
-          [ :broadcast_append_to, "milestones" ],
+          [ :broadcast_prepend_to, "milestones" ],
           [ :broadcast_replace_to, dom_id(project, :summary) ]
         )
       end

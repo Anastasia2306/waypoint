@@ -1,0 +1,15 @@
+<div id="<%= dom_id(project, :about) %>">
+  <% if project.description.present? %>
+    <%= simple_format(project.description) %>
+  <% end %>
+
+  <p class="about__repo">
+    <% if project.repository_url.present? %>
+      Репозиторий:
+      <%= link_to repository_label(project.repository_url), project.repository_url,
+            target: "_blank", rel: "noopener noreferrer" %>
+    <% else %>
+      <span class="muted">Ссылка на репозиторий пока не добавлена.</span>
+    <% end %>
+  </p>
+</div>

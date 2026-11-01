@@ -19,6 +19,14 @@
     </div>
   </section>
 
+  <section class="card" id="about">
+    <h2 class="card__title">О работе</h2>
+    <%= render "research_projects/about", project: @project %>
+    <% if project_student?(@project) %>
+      <%= render "research_projects/repository_form", project: @project %>
+    <% end %>
+  </section>
+
   <div class="layout">
     <section class="card">
       <h2 class="card__title">Вехи</h2>

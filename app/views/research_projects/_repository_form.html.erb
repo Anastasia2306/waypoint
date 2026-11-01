@@ -1,0 +1,15 @@
+<div id="repository_form">
+  <% if project.errors.any? %>
+    <ul class="form-errors">
+      <% project.errors.full_messages.each do |message| %><li><%= message %></li><% end %>
+    </ul>
+  <% end %>
+
+  <%= form_with model: project, class: "form-inline form-inline--repo" do |form| %>
+    <div class="field">
+      <%= form.label :repository_url, "Ссылка на репозиторий (GitHub, GitLab…)", class: "field__label" %>
+      <%= form.url_field :repository_url, class: "input", placeholder: "https://github.com/ваш-ник/проект" %>
+    </div>
+    <%= form.submit "Сохранить", class: "btn btn--dark" %>
+  <% end %>
+</div>

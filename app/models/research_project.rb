@@ -11,14 +11,21 @@ class ResearchProject < ApplicationRecord
 
   belongs_to :student, class_name: "User", inverse_of: :research_projects
   belongs_to :supervisor, class_name: "User", inverse_of: :supervised_projects
-  has_many :milestones, -> { order(:due_on, :position) },
+  # Новые вехи показываются сверху
+  has_many :milestones, -> { order(created_at: :desc, id: :desc) },
            dependent: :destroy, inverse_of: :research_project
   has_many :progress_notes, dependent: :destroy
 
+  normalizes :repository_url, with: ->(url) { url.strip.presence }
+
   validates :title, presence: true, length: { maximum: 200 }
+  validates :repository_url, length: { maximum: 300 }
   validate :student_must_be_student
   validate :supervisor_must_supervise
   validate :due_on_not_before_starts_on
+  validate :repository_url_is_web_link
+
+  after_update_commit :broadcast_repository, if: :saved_change_to_repository_url?
 
   # Доля закрытых вех, 0..100
   def progress_percent
@@ -28,7 +35,7 @@ class ResearchProject < ApplicationRecord
     (list.count(&:completed?) * 100.0 / list.size).round
   end
 
-  # Ближайшая незакрытая веха
+  # Ближайшая по сроку незакрытая веха (от порядка показа не зависит)
   def next_milestone
     milestones.to_a.reject(&:completed?).min_by(&:due_on)
   end
@@ -59,6 +66,10 @@ class ResearchProject < ApplicationRecord
 
   private
 
+  def broadcast_repository
+    ProjectBroadcaster.new(self).repository_changed
+  end
+
   def student_must_be_student
     return if student.nil? || student.student?
 
@@ -75,5 +86,12 @@ class ResearchProject < ApplicationRecord
     return if starts_on.nil? || due_on.nil? || due_on >= starts_on
 
     errors.add(:due_on, "не может быть раньше даты начала")
+  end
+
+  # Только веб-ссылки: так нельзя подсунуть javascript: и подобное
+  def repository_url_is_web_link
+    return if repository_url.blank? || repository_url.match?(%r{\Ahttps?://\S+\z}i)
+
+    errors.add(:base, "Ссылка на репозиторий должна начинаться с http:// или https://")
   end
 end

@@ -24,7 +24,7 @@ class ProjectBroadcaster
     safely do
       milestone = find_milestone(milestone.id)
       Turbo::StreamsChannel.broadcast_remove_to(@project, target: "milestones_empty")
-      broadcast(:append, "milestones", "milestones/milestone", milestone: milestone, project: @project)
+      broadcast(:prepend, "milestones", "milestones/milestone", milestone: milestone, project: @project)
       broadcast_summary
     end
   end
@@ -34,6 +34,12 @@ class ProjectBroadcaster
       milestone = find_milestone(milestone.id)
       broadcast(:replace, dom_id(milestone, :row), "milestones/row", milestone: milestone, project: @project)
       broadcast_summary
+    end
+  end
+
+  def repository_changed
+    safely do
+      broadcast(:replace, dom_id(@project, :about), "research_projects/about", project: @project)
     end
   end
 

@@ -19,10 +19,28 @@ class ResearchProjectsController < ApplicationController
     @project.supervisor = Current.user
 
     if @project.save
-      redirect_to @project, notice: "Работа создана. Теперь добавьте вехи."
+      redirect_to @project, notice: "Работа создана. Теперь студент может добавить вехи."
     else
       load_students
       render :new, status: :unprocessable_entity
+    end
+  end
+
+  # Ссылку на репозиторий добавляет студент этой работы
+  def update
+    @project = visible_projects.find(params[:id])
+    return deny_access("Ссылку на репозиторий добавляет студент этой работы.") unless project_student?(@project)
+
+    if @project.update(repository_params)
+      respond_to do |format|
+        format.html { redirect_to @project, notice: "Ссылка на репозиторий сохранена." }
+        format.turbo_stream # update.turbo_stream.erb обновляет форму
+      end
+    else
+      respond_to do |format|
+        format.html { redirect_to @project, alert: @project.errors.full_messages.to_sentence }
+        format.turbo_stream { render :update, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -38,5 +56,9 @@ class ResearchProjectsController < ApplicationController
 
   def project_params
     params.expect(research_project: [ :title, :description, :kind, :student_id, :starts_on, :due_on ])
+  end
+
+  def repository_params
+    params.expect(research_project: [ :repository_url ])
   end
 end

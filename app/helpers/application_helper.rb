@@ -86,4 +86,9 @@ module ApplicationHelper
   def milestone_comments_count(project, milestone)
     project.progress_notes.to_a.count { |note| note.milestone_id == milestone.id }
   end
+
+  # Ссылка без протокола для показа: «github.com/user/repo»
+  def repository_label(url)
+    url.sub(%r{\Ahttps?://(www\.)?}i, "").chomp("/")
+  end
 end
